@@ -1,10 +1,14 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS, cross_origin
 from classes.Report import Report
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 report = Report()
 
 @app.route('/create_report', methods=['GET'])
+@cross_origin()
 def create_report():
     suspect_name = request.args.get('suspect_name')
     dept = request.args.get('dept')
@@ -20,8 +24,7 @@ def create_report():
     previous_hash = report.hash(previous_block)
     block = report.create_block(proof, previous_hash, suspect_name, dept, action_category, description, location, time_of_occurence, evidence)
 
-    response = {'message': 'A block is MINED',
-                'index': block['index'],
+    response = {'index': block['index'],
                 'timestamp': block['timestamp'],
                 'proof': block['proof'],
                 'previous_hash': block['previous_hash'],
@@ -29,20 +32,23 @@ def create_report():
                 'dept': block['dept'],
                 'action_category': block['action_category'],
                 'description': block['description'],
+                # optional fields
                 'location': block['location'],
                 'time_of_occurence': block['time_of_occurence'],
-                'evidence': block['evidence']
-                }
+                # evidence as string, divide by comma and convert to list
+                'evidence': [block['evidence'].split(',')]}
 
     return jsonify(response), 200
 
 @app.route('/reports', methods=['GET'])
+@cross_origin()
 def display_reports():
-    response = {'chain': report.chain,
-                'length': len(report.chain)}
+    response = {'chain': report.chain[1:],
+                'length': len(report.chain)-1}
     return jsonify(response), 200
 
 @app.route('/reports/<int:index>', methods=['GET'])
+@cross_origin()
 def display_report_by_id(index):
     for block in report.chain:
         if block['index'] == index:

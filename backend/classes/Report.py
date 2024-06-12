@@ -14,16 +14,15 @@ class Report:
           'timestamp': str(datetime.datetime.now()),
           'proof': proof,
           'previous_hash': previous_hash,
-          'current_hash': '',
           'suspect_name': suspect_name,
           'dept': dept,
           'action_category': action_category,
           'description': description,
           'location': location,
           'time_of_occurence': time_of_occurence,
+          # evidence as string, divide by comma and convert to list
           'evidence': evidence
         }
-        block['current_hash'] = self.hash(block)
         self.chain.append(block)
         return block
 

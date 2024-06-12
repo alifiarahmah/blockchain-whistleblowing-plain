@@ -1,9 +1,26 @@
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 import './App.css';
+import { Report } from './types';
 
 function App() {
+  const [reports, setReports] = useState<Report[]>([]);
+  const fetchReports = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/reports');
+      setReports(response.data.chain);
+      console.log(reports);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
   return (
     <div>
-      <div>Reports:</div>
       <table>
         <thead>
           <tr>
@@ -15,30 +32,32 @@ function App() {
             <th>Lokasi</th>
             <th>Waktu</th>
             <th>Bukti</th>
-            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1</td>
-            <td>John Doe</td>
-            <td>IT</td>
-            <td>Perilaku</td>
-            <td>Menyontek</td>
-            <td>Lab 1</td>
-            <td>2021-10-10 10:00</td>
-            <td>https://example.com/image.jpg</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>Jane Doe</td>
-            <td>HR</td>
-            <td>Perilaku</td>
-            <td>Menyontek</td>
-            <td>Lab 1</td>
-            <td>2021-10-10 10:00</td>
-            <td>https://example.com/image.jpg</td>
-          </tr>
+          {reports.map((report: Report) => (
+            <tr key={report.index}>
+              <td>{report.index}</td>
+              <td>{report.suspect_name}</td>
+              <td>{report.dept}</td>
+              <td>{report.action_category}</td>
+              <td>{report.description}</td>
+              <td>{report.location}</td>
+              <td>{report.time_of_occurence}</td>
+              <td>
+                {report.evidence.map((evidence, index) => (
+                  <a
+                    key={index}
+                    href={evidence}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {index + 1}
+                  </a>
+                ))}
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
